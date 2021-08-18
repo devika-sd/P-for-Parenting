@@ -4,10 +4,7 @@ const asyncHandler = require('../middleware/async');
 console.log('attempting to connect parenting route')
 
 const getAllQuestions = asyncHandler(async (req, res) => {
-    feed.find({}, function (err, feeds) {
-        console.log("found")
-        res.json(feeds)
-    })
+    res.status(200).json(res.advancedResults)
 })
 
 const getQuestionsById = asyncHandler(async (req, res) => {
@@ -44,9 +41,9 @@ const postAnswerToQuestion = asyncHandler(async (req, res) => {
     var ques_id = req.params.id;
 
     let doc = await feed.findOne({ _id: ques_id });
-    if (doc.answer.includes(req.body.answer)) {
-        var loc = doc.answer.indexOf(req.body.answer);
-        doc.count.set(loc, doc.count[loc] + 1);
+    if (doc.answer.some(value => value["solution"] === req.body.answer)) {
+        var loc = doc.answer.map(item => item.solution).indexOf(req.body.answer);
+        doc.answer[loc].count = doc.answer[loc].count + 1;
         doc.save().then(savedDoc => {
             res.status(200).json({
                 "data": savedDoc
@@ -54,7 +51,7 @@ const postAnswerToQuestion = asyncHandler(async (req, res) => {
         });
     }
     else {
-        feed.findByIdAndUpdate(ques_id, { $addToSet: { answer: { solution: req.body.answer } } }, {
+        feed.findByIdAndUpdate(ques_id, { $push: { answer: { solution: req.body.answer } } }, {
             new: true,
             runValidators: true
         }).then(data => {

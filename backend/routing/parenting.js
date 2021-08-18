@@ -5,7 +5,7 @@ const feed = require('../models/feedschema');
 const { getAllQuestions,getQuestionsById,postQuestions,postAnswerToQuestion } = require('../controllers/parenting');
 
 
-router.get('/allques',getAllQuestions)
+router.get('/allques',advancedFind(feed),getAllQuestions)
 
 router.get('/ques/:id', getQuestionsById)
 

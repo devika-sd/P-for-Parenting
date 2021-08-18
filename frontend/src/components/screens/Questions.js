@@ -6,7 +6,7 @@ class Questions extends Component {
         this.state = { data: {answer:[],question:""} };
     }
     componentDidMount() {
-        fetch('http://localhost:8080/api/v1/ques/' + this.props.match.params.id)
+        fetch('http://localhost:8080/api/v1/parenting/ques/' + this.props.match.params.id)
             .then(response => response.json())
             .then(res => {
                 console.log(res);

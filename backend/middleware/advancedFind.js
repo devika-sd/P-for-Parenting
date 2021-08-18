@@ -72,8 +72,6 @@ const advancedFind = (model, populate) =>  async (req, res, next)=> {
   res.advancedResults = {
     success: true,
     total:total,
-    count: results.length,
-    pagination,
     data: results
   };
 

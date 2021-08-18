@@ -12,6 +12,9 @@ const FeedSchema = new mongoose.Schema({
         count: {
             type: Number,
             default: 1
+        },
+        does:{
+            type: Boolean
         }
     }],
     viewCount: {

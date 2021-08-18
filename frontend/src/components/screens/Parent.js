@@ -26,7 +26,7 @@ class Parent extends Component {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ question: this.state.question })
         };
-        fetch('http://localhost:8080/api/v1/ques', requestOptions)
+        fetch('http://localhost:8080/api/v1/parenting/ques', requestOptions)
             .then(response => response.json())
             .then(data =>{
                 console.log(data);
