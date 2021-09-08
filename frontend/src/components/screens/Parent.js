@@ -36,7 +36,7 @@ class Parent extends Component {
     render() {
         return (
             <div className="leftalign" style={{ height: "800px", marginTop: "20px",marginBottom:"20px" }}>
-                <span style={{ color: 'black', fontSize: 25,marginLeft:'20px' }}>
+                <span style={{ color: 'black', fontSize: 25,margin:'20px' }}>
                     Please ask your concern down below:
                 </span>
                 <div style={{ backgroundColor: 'rgb(226, 226, 226)', margin: '20px',width:'80%' }}>

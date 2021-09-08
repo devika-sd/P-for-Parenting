@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 class Header extends Component {
     constructor() {
         super();
-        this.state = { open: "collapse navbar-collapse" }
+        this.state = { open: "collapse navbar-collapse", word: "", result: [] }
     }
     toggleCollape() {
         if (this.state.open === "collapse navbar-collapse") {
@@ -14,7 +14,51 @@ class Header extends Component {
             this.setState({ open: "collapse navbar-collapse" })
         }
     }
+    wordCapture(e) {
+        if (e.target.value.length > 2) {
+            fetch('http://localhost:8080/api/v1/parenting/allques?sort=-viewCount&question[regex]=' + e.target.value)
+                .then(response => response.json())
+                .then(data => {
+                    this.setState({ result: data.advanced.data });
+                    console.log(this.state.result);
+                })
+        }
+        else
+        {
+            this.setState({ result: [] });
+        }
+        this.setState({ word: e.target.value })
+    }
+    searchWord() {
+        if (this.state.word !== "") {
+            fetch('http://localhost:8080/api/v1/parenting/allques?sort=-viewCount&question[regex]=' + this.state.word)
+                .then(response => response.json())
+                .then(data => {
+                    this.setState({ result: data.data });
+                    console.log(this.state.result);
+                    this.props.history.push('/searchresults/'+this.state.word);
+                    this.setState({ result: [],word:'' });
+                })
+        }
+    }
+    clickQuestion(id)
+    {
+        this.setState({result:[],word:''})
+        const requestOptions = {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' }
+        };
+        fetch('http://localhost:8080/api/v1/parenting/ques/'+id,requestOptions)
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                this.props.history.push('/questions/'+id);
+            });
+    }
     render() {
+        var results = this.state.result.slice(0,10).map((value,key)=>{
+            return <Link to={"/questions/" + value._id} onClick={this.clickQuestion.bind(this,value._id)} className="dropdown-item" href="#">{value.question}</Link>
+        })
         return (
             <div style={{ height: "10%", position: "sticky", top: '0px', width: "100%", marginBottom: '20px' }}>
                 <nav className="navbar navbar-expand-lg navbar-dark bg-primary ">
@@ -28,18 +72,22 @@ class Header extends Component {
 
                             </ul>
                             <form className="d-flex">
-                                <ul className="navbar-nav">
+                                <ul className="navbar-nav" style={{ marginLeft: '20px' }}>
                                     <li className="nav-item">
-                                        <a className="nav-link" href="#">FAQ&nbsp;<i class="fas fa-question-circle"></i></a>
+                                        <Link to={'/faq'} className="nav-link" href="#">FAQ&nbsp;<i class="fas fa-question-circle"></i></Link>
                                     </li>
                                     <li className="nav-item">
-                                        <a className="nav-link" href="#">About&nbsp;<i class="fas fa-info-circle"></i></a>
+                                        <Link to={'/about'} className="nav-link" href="#">About&nbsp;<i class="fas fa-info-circle"></i></Link>
                                     </li>
                                 </ul>
                             </form>
-                            <form className="d-flex" style={{ marginRight: '10px',paddingRight:'22px' }}>
-                                <input className="form-control me-sm-2" type="text" placeholder="Search" style={{height:'40px',marginBottom:'0px'}} />
-                                <button className="btn btn-secondary my-2 my-sm-0" type="submit" style={{height:'40px'}}><i class="fas fa-search"></i></button>
+                            <form className="d-flex" style={{marginLeft: '20px', marginRight: '10px', paddingRight: '22px' }}>
+                                <input onChange={this.wordCapture.bind(this)} value={this.state.word} className="form-control me-sm-2" type="text" placeholder="Search" style={{ height: '40px',width:'100%', marginBottom: '0px' }} />
+                                {this.state.result.length>0 &&
+                                <div className="dropdown-menu show" data-popper-placement="bottom-start" style={{width:'300px', transform: 'translate(0px, 42px)' }}>
+                                    {results}
+                                </div> }
+                                <button onClick={this.searchWord.bind(this)} className="btn btn-secondary" type="button" style={{ height: '40px' }}><i class="fas fa-search"></i></button>
                             </form>
 
                         </div>

@@ -4,8 +4,17 @@ const asyncHandler = require('../middleware/async');
 console.log('attempting to connect parenting route')
 
 const getAllQuestions = asyncHandler(async (req, res) => {
-    res.status(200).json(res.advancedResults)
+    feed.aggregate([
+        {$unwind: '$answer'},
+        {$sort: {'answer.count':-1}},
+        {$group: {_id: '$_id', 'answer': {$push:'$answer'},question : { $first: '$question' },viewCount : { $first: '$viewCount' }}},
+        {$sort:{viewCount:-1}}
+        ]).exec((err,docs)=>{
+           res.json({data:docs,advanced:res.advancedResults})
+       })
+    // res.status(200).json(res.advancedResults)
 })
+
 
 const getQuestionsById = asyncHandler(async (req, res) => {
     feed.findOne({ _id: req.params.id }, function (err, feeds) {
@@ -51,7 +60,7 @@ const postAnswerToQuestion = asyncHandler(async (req, res) => {
         });
     }
     else {
-        feed.findByIdAndUpdate(ques_id, { $push: { answer: { solution: req.body.answer } } }, {
+        feed.findByIdAndUpdate(ques_id, { $push: { answer: { solution: req.body.answer , does:req.body.does} } }, {
             new: true,
             runValidators: true
         }).then(data => {
@@ -61,5 +70,15 @@ const postAnswerToQuestion = asyncHandler(async (req, res) => {
         })
     }
 })
+const IncreaseQuestionCount=asyncHandler(async (req, res)=>{
+    var quest_id=req.params.id;
+    let doc = await feed.findOne({ _id: quest_id });
+    doc.viewCount=doc.viewCount+1;
+        doc.save().then(savedDoc => {
+            res.status(200).json({
+                "data": savedDoc
+            })
+        });
+})
 
-module.exports = { getAllQuestions, getQuestionsById, postQuestions, postAnswerToQuestion };
+module.exports = { getAllQuestions, getQuestionsById, postQuestions, postAnswerToQuestion,IncreaseQuestionCount };

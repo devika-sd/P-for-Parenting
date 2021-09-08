@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 // 4. Create connection
 async function databaseConnection()
 {
-    await mongoose.connect(`mongodb://localhost:27017/bookstore`, {
+    await mongoose.connect(`${process.env.DB_URL}`, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
     useFindAndModify: false,
